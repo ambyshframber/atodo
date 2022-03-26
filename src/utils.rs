@@ -33,7 +33,9 @@ pub struct Options {
     pub parent_tasks: Vec<usize>,
     pub child_tasks: Vec<usize>,
     pub string: Vec<String>,
-    pub todo_file_path: Option<String>
+    pub todo_file_path: Option<String>,
+    pub view_done: bool,
+    pub view_undone: bool
 }
 
 pub fn collate_string_vec(v: &Vec<String>) -> String {

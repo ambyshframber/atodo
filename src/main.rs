@@ -1,4 +1,4 @@
-use argparse::{ArgumentParser, StoreConst, Store, Collect, StoreOption};
+use argparse::{ArgumentParser, StoreConst, Store, Collect, StoreOption, StoreTrue, StoreFalse};
 use std::process::exit;
 
 use utils::{Options, Command};
@@ -13,9 +13,7 @@ fn main() {
 }
 
 fn run() -> i32 {
-    //let mut w = Web::new(String::from("test"));
-
-    let po = get_options();
+    let po = dbg!(get_options());
 
     let path = match &po.todo_file_path {
         Some(p) => p,
@@ -33,20 +31,20 @@ fn run() -> i32 {
     let exit_code = match po.command { // HERE WE GO
         // non-mutating
         C::List => {
-            web.list();
+            web.list(&po);
             0
         }
         C::View => {
-            web.view(po.main_index)
+            web.view(po.main_index, &po)
         }
         C::Random => {
-            web.random()
+            web.random(&po)
         }
         C::RandomTopLevel => {
-            web.random_top()
+            web.random_top(&po)
         }
         C::RandomBottomLevel => {
-            web.random_bottom()
+            web.random_bottom(&po)
         }
 
         // mutating
@@ -95,13 +93,14 @@ fn run() -> i32 {
 
 fn get_options() -> Options {
     let mut po = Options::default();
+    po.view_undone = true;
 
     {
         let mut ap = ArgumentParser::new();
         ap.refer(&mut po.command) // main command
             .add_option(&["-l"], StoreConst(Command::List), "list all tasks")
             .add_option(&["-a"], StoreConst(Command::Add), "add a task")
-            .add_option(&["-N"], StoreConst(Command::AddNote), "add a note to a task")
+            .add_option(&["-A"], StoreConst(Command::AddNote), "add a note to a task")
             .add_option(&["-v"], StoreConst(Command::View), "view a task in detail")
             .add_option(&["-e"], StoreConst(Command::Edit), "edit a task")
             //.add_option(&["-p"], StoreConst(Command::AddParents), "add parent tasks to a task")
@@ -119,6 +118,9 @@ fn get_options() -> Options {
         ap.refer(&mut po.parent_tasks).add_option(&["-p"], Collect, "a task to add as a parent (works with -a or -e)");
         ap.refer(&mut po.child_tasks).add_option(&["-c"], Collect, "a task to add as a child (works with -a or -e)");
         ap.refer(&mut po.unlink_tasks).add_option(&["-u"], Collect, "a task to unlink when using -e");
+
+        ap.refer(&mut po.view_done).add_option(&["-D"], StoreTrue, "view tasks that are already completed");
+        ap.refer(&mut po.view_undone).add_option(&["-N"], StoreFalse, "do not view tasks that are not already completed");
 
         ap.refer(&mut po.todo_file_path).add_option(&["-P"], StoreOption, "select a custom file path (by default uses ./.todo)");
 

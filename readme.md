@@ -14,7 +14,7 @@ the program takes a command and some other parameters. commands are:
 
 `-a`: add
 
-`-N`: add note
+`-A`: add note
 
 `-r`: remove
 
@@ -30,6 +30,8 @@ the program takes a command and some other parameters. commands are:
 
 `-B`: view random bottom-level
 
+`-R` selects a random task and displays it. `-T` selects a task that is not a requirement for anything else. `-B` selects a task with no unfinished requirements. all 3 of these options are affected by `-D` and `-N`. 
+
 the available parameters are:
 
 `-t TASK`: the target task to work with
@@ -41,6 +43,12 @@ the available parameters are:
 `-u TASK`: unlink a task
 
 `-P PATH`: use a custom path, rather than `./.todo`
+
+`-D`: view tasks that are already completed
+
+`-N`: do not view tasks that are not completed
+
+by default, non-completed tasks are displayed, and completed tasks are not
 
 the program also collects all remaining arguments as a single string.
 

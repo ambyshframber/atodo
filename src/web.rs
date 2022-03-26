@@ -60,14 +60,14 @@ impl Web {
     }
 
     // non-mutating
-    pub fn list(&self) {
+    pub fn list(&self, po: &Options) {
         for t in &self.list {
-            t.display_short(self)
+            t.display_short(self, po)
         }
     }
-    pub fn view(&self, index: usize) -> i32 {
+    pub fn view(&self, index: usize, po: &Options) -> i32 {
         if index < self.list.len() {
-            self.list[index].display(self);
+            self.list[index].display(self, po);
             0
         }
         else {
@@ -75,10 +75,19 @@ impl Web {
             1
         }
     }
-    pub fn random(&self) -> i32 {
-        match self.list.iter().choose(&mut thread_rng()) {
+    pub fn random(&self, po: &Options) -> i32 {
+        let mut eligible: Vec<usize> = Vec::new();
+        for (i, t) in self.list.iter().enumerate() {
+            if po.view_done && t.done {
+                eligible.push(i)
+            }
+            else if po.view_undone && !t.done {
+                eligible.push(i)
+            }
+        }
+        match eligible.iter().choose(&mut thread_rng()) {
             Some(t) => {
-                t.display(self);
+                self.list[*t].display(self, po);
                 0
             }
             None => {
@@ -87,18 +96,23 @@ impl Web {
             }
         }
     }
-    pub fn random_top(&self) -> i32 {
+    pub fn random_top(&self, po: &Options) -> i32 {
         let mut eligible: Vec<usize> = Vec::new();
 
-        for (i, _) in self.list.iter().enumerate() {
+        for (i, t) in self.list.iter().enumerate() {
             if self.get_indexes_of_parent_tasks(i).len() == 0 {
-                eligible.push(i)
+                if po.view_done && t.done {
+                    eligible.push(i)
+                }
+                else if po.view_undone && !t.done {
+                    eligible.push(i)
+                }
             }
         }
         
         match eligible.iter().choose(&mut thread_rng()) {
             Some(t) => {
-                self.list[*t].display(self);
+                self.list[*t].display(self, po);
                 0
             }
             None => {
@@ -107,18 +121,23 @@ impl Web {
             }
         }
     }
-    pub fn random_bottom(&self) -> i32 {
+    pub fn random_bottom(&self, po: &Options) -> i32 {
         let mut eligible: Vec<usize> = Vec::new();
 
         for (i, t) in self.list.iter().enumerate() {
-            if t.children.len() == 0 {
-                eligible.push(i)
+            if t.children.len() == 0 || t.all_children_done(self) {
+                if po.view_done && t.done {
+                    eligible.push(i)
+                }
+                else if po.view_undone && !t.done {
+                    eligible.push(i)
+                }
             }
         }
         
         match eligible.iter().choose(&mut thread_rng()) {
             Some(t) => {
-                self.list[*t].display(self);
+                self.list[*t].display(self, po);
                 0
             }
             None => {
@@ -185,13 +204,11 @@ impl Web {
     pub fn remove(&mut self, po: &Options) -> i32 {
         let remove_index = po.main_index;
         if remove_index < self.list.len() {
-            for t in &mut self.list { 
+            for t in &mut self.list {
+                t.children.retain(|&x| x != remove_index);
                 for i in 0..t.children.len() {
                     if t.children[i] > remove_index {
                         t.children[i] -= 1
-                    }
-                    if t.children[i] == remove_index {
-                        t.children.remove(i);
                     }
                 }
             }
