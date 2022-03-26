@@ -13,7 +13,7 @@ fn main() {
 }
 
 fn run() -> i32 {
-    let po = dbg!(get_options());
+    let po = get_options();
 
     let path = match &po.todo_file_path {
         Some(p) => p,

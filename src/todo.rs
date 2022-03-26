@@ -36,6 +36,7 @@ impl ToDo {
             print!("\t\t");
             web.list[p].display_short(web, po);
         }
+        println!("")
     }
 
     pub fn display_short(&self, web: &Web, po: &Options) {
