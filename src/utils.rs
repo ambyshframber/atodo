@@ -47,3 +47,7 @@ pub fn collate_string_vec(v: &Vec<String>) -> String {
     }
     ret
 }
+
+pub fn will_display(done: bool, po: &Options) -> bool {
+    (done && po.view_done) || (!done && po.view_undone)
+}

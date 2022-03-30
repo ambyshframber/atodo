@@ -1,6 +1,6 @@
 use serde::{Serialize, Deserialize};
 
-use crate::utils::{colour::*, Options};
+use crate::utils::{colour::*, Options, will_display};
 use crate::web::Web;
 
 #[derive(Default, Serialize, Deserialize)]
@@ -29,20 +29,22 @@ impl ToDo {
         }
 
         println!("\n\tprerequesites:");
-        for p in &self.children {
-            print!("\t\t");
-            web.list[*p].display_short(web, po);
+        for c in &self.children {
+            let t = &web.list[*c];
+            if will_display(t.done, po) { print!("\t\t") };
+            t.display_short(web, po);
         }
         println!("\n\tprerequesite of:");
         for p in web.get_indexes_of_parent_tasks(index) { // todo items don't directly store their own parents
-            print!("\t\t");
-            web.list[p].display_short(web, po);
+            let t = &web.list[p];
+            if will_display(t.done, po) { print!("\t\t") };
+            t.display_short(web, po);
         }
         println!("")
     }
 
     pub fn display_short(&self, web: &Web, po: &Options) {
-        if (self.done && po.view_done) || (!self.done && po.view_undone) {
+        if will_display(self.done, po) {
             if po.colours {
                 if self.done {
                     print!("{}", GREEN)
