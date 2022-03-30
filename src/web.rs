@@ -84,6 +84,8 @@ impl Web {
             else if po.view_undone && !t.done {
                 eligible.push(i)
             }
+            // these two ifs mean the program will say "no tasks in list"
+            // if there are tasks but they wont be displayed
         }
         match eligible.iter().choose(&mut thread_rng()) {
             Some(t) => {
@@ -99,7 +101,7 @@ impl Web {
     pub fn random_top(&self, po: &Options) -> i32 {
         let mut eligible: Vec<usize> = Vec::new();
 
-        for (i, t) in self.list.iter().enumerate() {
+        for (i, t) in self.list.iter().enumerate() { // select tasks with no parents
             if self.get_indexes_of_parent_tasks(i).len() == 0 {
                 if po.view_done && t.done {
                     eligible.push(i)
@@ -107,6 +109,8 @@ impl Web {
                 else if po.view_undone && !t.done {
                     eligible.push(i)
                 }
+                // these two ifs mean the program will say "no tasks in list"
+                // if there are top level tasks but they wont be displayed
             }
         }
         
@@ -124,7 +128,7 @@ impl Web {
     pub fn random_bottom(&self, po: &Options) -> i32 {
         let mut eligible: Vec<usize> = Vec::new();
 
-        for (i, t) in self.list.iter().enumerate() {
+        for (i, t) in self.list.iter().enumerate() { // select tasks with no children
             if t.children.len() == 0 || t.all_children_done(self) {
                 if po.view_done && t.done {
                     eligible.push(i)
@@ -132,6 +136,8 @@ impl Web {
                 else if po.view_undone && !t.done {
                     eligible.push(i)
                 }
+                // these two ifs mean the program will say "no tasks in list"
+                // if there are bottom level tasks but they wont be displayed
             }
         }
         
@@ -152,7 +158,7 @@ impl Web {
         let name = collate_string_vec(&po.string);
         let mut children: Vec<usize> = Vec::new();
         for i in &po.child_tasks {
-            if i < &self.list.len() {
+            if i < &self.list.len() { // check task exists
                 children.push(*i)
             }
             else {
@@ -160,10 +166,11 @@ impl Web {
                 return 1
             }
         }
-        let mut parents: Vec<usize> = Vec::new();
+        //let mut parents: Vec<usize> = Vec::new();
         for i in &po.parent_tasks {
-            if i < &self.list.len() {
-                parents.push(*i)
+            if i < &self.list.len() { // check task exists
+                let new_index = self.list.len();
+                self.list[*i].children.push(new_index); // add new task as child task to all specified parent tasks
             }
             else {
                 println!("parent task {} does not exist!", i);

@@ -49,7 +49,7 @@ fn run() -> i32 {
 
         // mutating
         _ => {
-            match web.backup(path) {
+            match web.backup(path) { // backup todo file
                 Ok(_) => {}
                 Err(e) => {
                     println!("{}", e);
@@ -61,7 +61,7 @@ fn run() -> i32 {
                     web.add(&po)
                 }
                 C::MarkDone => {
-                    web.mark(&po, true)
+                    web.mark(&po, true) // mark just changes the done field
                 }
                 C::MarkNotDone => {
                     web.mark(&po, false)
@@ -75,13 +75,13 @@ fn run() -> i32 {
                 C::Edit => {
                     web.edit(&po)
                 }
-                _ => unreachable!()
+                _ => unreachable!() // make the compiler shut up
             }
         }
     };
 
     match exit_code {
-        0 => {
+        0 => { // only save if program doesn't error
             let _ = web.save_to_file(".todo"); // MAKE THIS NOT SHIT
             0
         }
@@ -94,6 +94,7 @@ fn run() -> i32 {
 fn get_options() -> Options {
     let mut po = Options::default();
     po.view_undone = true;
+    po.colours = true;
 
     {
         let mut ap = ArgumentParser::new();
@@ -113,6 +114,7 @@ fn get_options() -> Options {
             .add_option(&["-T"], StoreConst(Command::RandomTopLevel), "select and display a random top-level task")
             .add_option(&["-B"], StoreConst(Command::RandomBottomLevel), "select and display a random bottom-level task")
         ;
+
         ap.refer(&mut po.main_index).add_option(&["-t"], Store, "the task index to work with");
 
         ap.refer(&mut po.parent_tasks).add_option(&["-p"], Collect, "a task to add as a parent (works with -a or -e)");
@@ -123,6 +125,8 @@ fn get_options() -> Options {
         ap.refer(&mut po.view_undone).add_option(&["-N"], StoreFalse, "do not view tasks that are not already completed");
 
         ap.refer(&mut po.todo_file_path).add_option(&["-P"], StoreOption, "select a custom file path (by default uses ./.todo)");
+
+        ap.refer(&mut po.colours).add_option(&["-C"], StoreFalse, "disable colours");
 
         ap.refer(&mut po.string).add_argument("string", Collect, "the string the program will use for -a and -N");
 
