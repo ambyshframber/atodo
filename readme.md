@@ -44,6 +44,8 @@ the available parameters are:
 
 `-P PATH`: use a custom path, rather than `./.todo`
 
+`-C`: disable colour
+
 `-D`: view tasks that are already completed
 
 `-N`: do not view tasks that are not completed
