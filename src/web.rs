@@ -3,7 +3,7 @@ use std::fs;
 use rand::{prelude::IteratorRandom, thread_rng};
 
 use crate::todo::ToDo;
-use crate::utils::{Options, collate_string_vec};
+use crate::utils::{Options, collate_string_vec, will_display};
 
 #[derive(Serialize, Deserialize)]
 pub struct Web {
@@ -62,7 +62,9 @@ impl Web {
     // non-mutating
     pub fn list(&self, po: &Options) {
         for t in &self.list {
-            t.display_short(self, po)
+            if will_display(t.done, po) {
+                t.display_short(self, po)
+            }
         }
     }
     pub fn view(&self, index: usize, po: &Options) -> i32 {
@@ -102,7 +104,7 @@ impl Web {
         let mut eligible: Vec<usize> = Vec::new();
 
         for (i, t) in self.list.iter().enumerate() { // select tasks with no parents
-            if self.get_indexes_of_parent_tasks(i).len() == 0 {
+            if !self.has_parents(i) {
                 if po.view_done && t.done {
                     eligible.push(i)
                 }
@@ -252,4 +254,7 @@ impl Web {
         }
     }
 
+    pub fn has_parents(&self, task: usize) -> bool {
+        self.get_indexes_of_parent_tasks(task).len() != 0
+    }
 }

@@ -13,15 +13,7 @@ pub struct ToDo {
 
 impl ToDo {
     pub fn display(&self, web: &Web, po: &Options) {
-        if po.colours {
-            if self.done {
-                print!("{}", GREEN)
-            }
-            else {
-                print!("{}", RED)
-            }
-        }
-        println!("{}) {}{}", web.get_index_of_todo(self), self.name, COLOUR_RESET);
+        self.display_short(web, po);
         let index = web.get_index_of_todo(self);
 
         for n in &self.notes {
@@ -31,30 +23,35 @@ impl ToDo {
         println!("\n\tprerequesites:");
         for c in &self.children {
             let t = &web.list[*c];
-            if will_display(t.done, po) { print!("\t\t") };
-            t.display_short(web, po);
+            if will_display(t.done, po) {
+                print!("\t\t");
+                t.display_short(web, po);
+            };
         }
         println!("\n\tprerequesite of:");
         for p in web.get_indexes_of_parent_tasks(index) { // todo items don't directly store their own parents
             let t = &web.list[p];
-            if will_display(t.done, po) { print!("\t\t") };
-            t.display_short(web, po);
+            if will_display(t.done, po) { 
+                print!("\t\t");
+                t.display_short(web, po);
+            };
         }
         println!("")
     }
 
     pub fn display_short(&self, web: &Web, po: &Options) {
-        if will_display(self.done, po) {
-            if po.colours {
-                if self.done {
-                    print!("{}", GREEN)
-                }
-                else {
-                    print!("{}", RED)
-                }
+        if po.colours {
+            if self.done {
+                print!("{}", GREEN)
             }
-            println!("{}) {}{}", web.get_index_of_todo(self), self.name, COLOUR_RESET);
+            else if self.all_children_done(web) || self.children.len() == 0 {
+                print!("{}", BLUE)
+            }
+            else {
+                print!("{}", RED)
+            }
         }
+        println!("{}) {}{}", web.get_index_of_todo(self), self.name, COLOUR_RESET);
     }
 
     pub fn add_note(&mut self, s: String) {

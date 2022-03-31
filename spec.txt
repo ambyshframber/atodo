@@ -1,3 +1,0 @@
-todo "webs" stored in json files
-every todo item has refs to all parents and all children
-- store as list indexes

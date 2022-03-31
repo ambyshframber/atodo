@@ -23,6 +23,7 @@ pub mod colour {
     pub const COLOUR_RESET: &'static str = "\x1b[0m";
     pub const RED: &'static str = "\x1b[31;1m";
     pub const GREEN: &'static str = "\x1b[32;1m";
+    pub const BLUE: &'static str = "\x1b[34;1m";
 }
 
 #[derive(Default, Debug)]
