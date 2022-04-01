@@ -1,13 +1,41 @@
 use serde::{Serialize, Deserialize};
 use std::fs;
 use rand::{prelude::IteratorRandom, thread_rng};
+use chrono::prelude::*;
 
-use crate::todo::ToDo;
+use crate::todo::{ToDo, ToDoOld};
 use crate::utils::{Options, collate_string_vec, will_display};
 
 #[derive(Serialize, Deserialize)]
 pub struct Web {
     pub list: Vec<ToDo>
+}
+#[derive(Serialize, Deserialize)]
+pub struct WebOld {
+    pub list: Vec<ToDoOld>
+}
+impl WebOld {
+    pub fn load_from_file(filename: &str) -> Result<WebOld, String> {
+        match fs::read_to_string(filename) {
+            Ok(s) => WebOld::load_from_string(&s),
+            Err(_) => panic!()
+        }
+    }
+    pub fn load_from_string(s: &str) -> Result<WebOld, String> {
+        match serde_json::from_str::<WebOld>(&s) {
+            Ok(g) => Ok(g),
+            Err(e) => Err(format!("json parse error for file! ({})", e)) // exit without panicking
+        }
+    }
+    pub fn to_new(self) -> Web {
+        let mut ret = Web::new();
+
+        for t in self.list {
+            ret.list.push(t.to_new())
+        }
+
+        ret
+    }
 }
 
 impl Web {
@@ -183,7 +211,9 @@ impl Web {
             name,
             notes: Vec::new(),
             children,
-            done: false
+            done: false,
+            time_added: Utc::now(),
+            time_completed: None
         };
 
         self.list.push(t);
@@ -192,7 +222,14 @@ impl Web {
     }
     pub fn mark(&mut self, po: &Options, done: bool) -> i32 {
         if po.main_index < self.list.len() {
-            self.list[po.main_index].done = done;
+            let t = &mut self.list[po.main_index];
+            t.done = done;
+            if done {
+                t.time_completed = Some(Utc::now())
+            }
+            else {
+                t.time_completed = None
+            }
             0
         }
         else {

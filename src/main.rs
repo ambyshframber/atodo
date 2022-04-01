@@ -2,7 +2,7 @@ use argparse::{ArgumentParser, StoreConst, Store, Collect, StoreOption, StoreTru
 use std::process::exit;
 
 use utils::{Options, Command};
-use web::Web;
+use web::{Web, WebOld};
 
 mod todo;
 mod web;
@@ -22,8 +22,15 @@ fn run() -> i32 {
     let mut web = match Web::load_from_file(&path) {
         Ok(w) => w,
         Err(e) => {
-            println!("{}", e);
-            return 1
+            match WebOld::load_from_file(&path) {
+                Ok(w) => {
+                    w.to_new()
+                }
+                Err(e2) => {
+                    println!("failed to load file as current or legacy web ({}, {})", e, e2);
+                    return 1
+                }
+            }
         }
     };
 

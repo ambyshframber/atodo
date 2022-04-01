@@ -1,20 +1,58 @@
 use serde::{Serialize, Deserialize};
+use chrono::prelude::*;
 
 use crate::utils::{colour::*, Options, will_display};
 use crate::web::Web;
 
-#[derive(Default, Serialize, Deserialize)]
+#[derive(Serialize, Deserialize)]
+pub struct ToDoOld {
+    pub name: String,
+    pub notes: Vec<String>,
+    pub done: bool,
+    pub children: Vec<usize>, // items required for this
+}
+impl ToDoOld {
+    pub fn to_new(self) -> ToDo {
+        let time_completed = if self.done {
+            Some(Utc::now())
+        }
+        else {
+            None
+        };
+        ToDo {
+            name: self.name,
+            notes: self.notes,
+            done: self.done,
+            children: self.children,
+            time_added: Utc::now(),
+            time_completed
+        }
+    }
+}
+#[derive(Serialize, Deserialize)]
 pub struct ToDo {
     pub name: String,
     pub notes: Vec<String>,
     pub done: bool,
     pub children: Vec<usize>, // items required for this
+    pub time_added: DateTime<Utc>,
+    pub time_completed: Option<DateTime<Utc>>,
 }
 
 impl ToDo {
     pub fn display(&self, web: &Web, po: &Options) {
         self.display_short(web, po);
         let index = web.get_index_of_todo(self);
+
+        let added_local = self.time_added.with_timezone(&Local);
+        println!("\tadded: {}", added_local.format("%Y-%m-%d %H:%M:%S %:z"));
+        match self.time_completed {
+            Some(t) => {
+                let completed_local = t.with_timezone(&Local);
+                println!("\tcompleted: {}", completed_local)
+            }
+            None => {}
+        }
 
         for n in &self.notes {
             println!("\t- {}", n)
@@ -51,7 +89,14 @@ impl ToDo {
                 print!("{}", RED)
             }
         }
-        println!("{}) {}{}", web.get_index_of_todo(self), self.name, COLOUR_RESET);
+        print!("{}) {}{}", web.get_index_of_todo(self), self.name, COLOUR_RESET);
+        if !po.colours {
+            if self.done {
+                print!(" (done)")
+                
+            }
+        }
+        println!("")
     }
 
     pub fn add_note(&mut self, s: String) {
