@@ -11,7 +11,7 @@ pub struct ToDoOld {
     pub done: bool,
     pub children: Vec<usize>, // items required for this
 }
-impl ToDoOld {
+impl ToDoOld { // just used to allow backwards compat
     pub fn to_new(self) -> ToDo {
         let time_completed = if self.done {
             Some(Utc::now())
@@ -45,11 +45,11 @@ impl ToDo {
         let index = web.get_index_of_todo(self);
 
         let added_local = self.time_added.with_timezone(&Local);
-        println!("\tadded: {}", added_local.format("%Y-%m-%d %H:%M:%S %:z"));
+        println!("\tadded: {}", added_local.format("%Y-%m-%d %H:%M:%S %:z")); // iso 8601 w/ no decimal seconds
         match self.time_completed {
             Some(t) => {
                 let completed_local = t.with_timezone(&Local);
-                println!("\tcompleted: {}", completed_local)
+                println!("\tcompleted: {}", completed_local.format("%Y-%m-%d %H:%M:%S %:z"))
             }
             None => {}
         }
@@ -82,7 +82,7 @@ impl ToDo {
             if self.done {
                 print!("{}", GREEN)
             }
-            else if self.all_children_done(web) || self.children.len() == 0 {
+            else if self.all_children_done(web) || self.children.len() == 0 { // display as blue if bottom level task
                 print!("{}", BLUE)
             }
             else {
