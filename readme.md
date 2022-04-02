@@ -30,7 +30,7 @@ the program takes a command and some other parameters. commands are:
 
 `-B`: view random bottom-level
 
-`-R` selects a random task and displays it. `-T` selects a task that is not a requirement for anything else. `-B` selects a task with no unfinished requirements. all 3 of these options are affected by `-D` and `-N`. 
+`-R` selects a random task and displays it. `-T` selects a task that is not a requirement for anything else. `-B` selects a task with no unfinished requirements. all 3 of these options are affected by `-D` and `-N`. running the program with no arguments is equivalent to `atodo -l`
 
 the available parameters are:
 

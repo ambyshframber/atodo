@@ -89,12 +89,15 @@ impl ToDo {
                 print!("{}", RED)
             }
         }
-        print!("{}) {}{}", web.get_index_of_todo(self), self.name, COLOUR_RESET);
+        print!("{}) {}", web.get_index_of_todo(self), self.name);
         if !po.colours {
             if self.done {
                 print!(" (done)")
                 
             }
+        }
+        else {
+            print!("{}", COLOUR_RESET)
         }
         println!("")
     }
