@@ -4,7 +4,7 @@ use chrono::prelude::*;
 use crate::utils::{colour::*, Options, will_display};
 use crate::web::Web;
 
-#[derive(Serialize, Deserialize)]
+/*#[derive(Serialize, Deserialize)]
 pub struct ToDoOld {
     pub name: String,
     pub notes: Vec<String>,
@@ -28,7 +28,7 @@ impl ToDoOld { // just used to allow backwards compat
             time_completed
         }
     }
-}
+}*/
 #[derive(Serialize, Deserialize)]
 pub struct ToDo {
     pub name: String,

@@ -1,8 +1,8 @@
-use argparse::{ArgumentParser, StoreConst, Store, Collect, StoreOption, StoreTrue, StoreFalse};
+use argparse::{ArgumentParser, StoreConst, Collect, StoreOption, StoreTrue, StoreFalse};
 use std::process::exit;
 
 use utils::{Options, Command};
-use web::{Web, WebOld};
+use web::{Web};
 
 mod todo;
 mod web;
@@ -22,15 +22,8 @@ fn run() -> i32 {
     let mut web = match Web::load_from_file(&path) {
         Ok(w) => w,
         Err(e) => {
-            match WebOld::load_from_file(&path) {
-                Ok(w) => {
-                    w.to_new()
-                }
-                Err(e2) => {
-                    println!("failed to load file as current or legacy web ({}, {})", e, e2);
-                    return 1
-                }
-            }
+            println!("failed to load web file: {}", e);
+            return 1
         }
     };
 
@@ -42,7 +35,13 @@ fn run() -> i32 {
             0
         }
         C::View => {
-            web.view(po.main_index, &po)
+            match po.main_index {
+                Some(i) => web.view(i, &po),
+                None => {
+                    println!("task index required!");
+                    2
+                }
+            }
         }
         C::Random => {
             web.random(&po)
@@ -63,26 +62,34 @@ fn run() -> i32 {
                     return 1
                 }
             }
-            match po.command {
-                C::Add => {
-                    web.add(&po)
+            if let C::Add = po.command {
+                web.add(&po)
+            }
+            else {
+                if let None = po.main_index {
+                    println!("task index required!");
+                    2
                 }
-                C::MarkDone => {
-                    web.mark(&po, true) // mark just changes the done field
+                else {
+                    match po.command {
+                        C::MarkDone => {
+                            web.mark(&po, true) // mark just changes the done field
+                        }
+                        C::MarkNotDone => {
+                            web.mark(&po, false)
+                        }
+                        C::AddNote => {
+                            web.add_note(&po)
+                        }
+                        C::Remove => {
+                            web.remove(&po)
+                        }
+                        C::Edit => {
+                            web.edit(&po)
+                        }
+                        _ => unreachable!() // make the compiler shut up
+                    }
                 }
-                C::MarkNotDone => {
-                    web.mark(&po, false)
-                }
-                C::AddNote => {
-                    web.add_note(&po)
-                }
-                C::Remove => {
-                    web.remove(&po)
-                }
-                C::Edit => {
-                    web.edit(&po)
-                }
-                _ => unreachable!() // make the compiler shut up
             }
         }
     };
@@ -122,7 +129,7 @@ fn get_options() -> Options {
             .add_option(&["-B"], StoreConst(Command::RandomBottomLevel), "select and display a random bottom-level task")
         ;
 
-        ap.refer(&mut po.main_index).add_option(&["-t"], Store, "the task index to work with");
+        ap.refer(&mut po.main_index).add_option(&["-t"], StoreOption, "the task index to work with");
 
         ap.refer(&mut po.parent_tasks).add_option(&["-p"], Collect, "a task to add as a parent (works with -a or -e)");
         ap.refer(&mut po.child_tasks).add_option(&["-c"], Collect, "a task to add as a child (works with -a or -e)");

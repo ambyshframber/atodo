@@ -3,14 +3,10 @@ use std::fs;
 use rand::{prelude::IteratorRandom, thread_rng};
 use chrono::prelude::*;
 
-use crate::todo::{ToDo, ToDoOld};
+use crate::todo::{ToDo};
 use crate::utils::{Options, collate_string_vec, will_display};
 
-#[derive(Serialize, Deserialize)]
-pub struct Web {
-    pub list: Vec<ToDo>
-}
-#[derive(Serialize, Deserialize)]
+/*#[derive(Serialize, Deserialize)]
 pub struct WebOld {
     pub list: Vec<ToDoOld>
 }
@@ -36,8 +32,12 @@ impl WebOld {
 
         ret
     }
-}
+}*/
 
+#[derive(Serialize, Deserialize)]
+pub struct Web {
+    pub list: Vec<ToDo>
+}
 impl Web {
     pub fn new() -> Web {
         Web {
@@ -221,8 +221,9 @@ impl Web {
         0
     }
     pub fn mark(&mut self, po: &Options, done: bool) -> i32 {
-        if po.main_index < self.list.len() {
-            let t = &mut self.list[po.main_index];
+        let index = po.main_index.unwrap();
+        if index < self.list.len() {
+            let t = &mut self.list[index];
             t.done = done;
             if done {
                 t.time_completed = Some(Utc::now())
@@ -238,8 +239,9 @@ impl Web {
         }
     }
     pub fn add_note(&mut self, po: &Options) -> i32 {
-        if po.main_index < self.list.len() {
-            self.list[po.main_index].add_note(collate_string_vec(&po.string));
+        let index = po.main_index.unwrap();
+        if index < self.list.len() {
+            self.list[index].add_note(collate_string_vec(&po.string));
             0
         }
         else {
@@ -248,7 +250,7 @@ impl Web {
         }
     }
     pub fn remove(&mut self, po: &Options) -> i32 {
-        let remove_index = po.main_index;
+        let remove_index = po.main_index.unwrap();
         if remove_index < self.list.len() {
             for t in &mut self.list {
                 t.children.retain(|&x| x != remove_index);
@@ -267,7 +269,7 @@ impl Web {
         }
     }
     pub fn edit(&mut self, po: &Options) -> i32 {
-        let index = po.main_index;
+        let index = po.main_index.unwrap();
         if index < self.list.len() {
             for c in &po.child_tasks {
                 if !self.list[index].children.contains(&c) {

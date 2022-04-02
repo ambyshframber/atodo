@@ -29,7 +29,7 @@ pub mod colour {
 #[derive(Default, Debug)]
 pub struct Options {
     pub command: Command,
-    pub main_index: usize,
+    pub main_index: Option<usize>,
     pub unlink_tasks: Vec<usize>,
     pub parent_tasks: Vec<usize>,
     pub child_tasks: Vec<usize>,
