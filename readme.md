@@ -1,6 +1,6 @@
 # atodo
 
-a simple command line linked todo list manager
+a simple command line linked todo list manager. every task in the list can have any amount of parent tasks (tasks it is required for) and child tasks (tasks required for it to be completed). i made atodo because a list usually isn't enough for a large project, as some things need other things to be done first. even a list ordered by priority isn't perfect.
 
 this program needs to be built with cargo. read the [rust book](https://doc.rust-lang.org/book/title-page.html) to find out more
 
@@ -50,7 +50,7 @@ the available parameters are:
 
 `-N`: do not view tasks that are not completed
 
-by default, non-completed tasks are displayed, and completed tasks are not
+by default, non-completed tasks are displayed, and completed tasks are not. bottom-level tasks are displayed in blue, non-completed tasks are red, and completed tasks are green. when in colourless mode, completed tasks are postfixed by `(done)` and bottom-level tasks are postfixed with `(ready)`
 
 the program also collects all remaining arguments as a single string.
 
@@ -68,4 +68,6 @@ the program also collects all remaining arguments as a single string.
 
 `atodo -e -t 1 -p 9 -u 4`: edit task 1 to note that task 9 needs it to be completed, and to remove any links (parent or child) to task 4
 
-`atodo -N -t 5 this may take some time`: add a note to task 5
+`atodo -A -t 5 this may take some time`: add a note to task 5
+
+you may also find it useful to go `atodo > todo.txt`. if you do, i recommend adding `-C` so you don't end up with misbehaving ansi colours

@@ -42,7 +42,7 @@ pub struct ToDo {
 impl ToDo {
     pub fn display(&self, web: &Web, po: &Options) {
         self.display_short(web, po);
-        let index = web.get_index_of_todo(self);
+        let index = web.get_index_of_todo(self).unwrap(); // task clearly exists - should not panic
 
         let added_local = self.time_added.with_timezone(&Local);
         println!("\tadded: {}", added_local.format("%Y-%m-%d %H:%M:%S %:z")); // iso 8601 w/ no decimal seconds
@@ -89,7 +89,7 @@ impl ToDo {
                 print!("{}", RED)
             }
         }
-        print!("{}) {}", web.get_index_of_todo(self), self.name);
+        print!("{}) {}", web.get_index_of_todo(self).unwrap(), self.name);
         if !po.colours {
             if self.done {
                 print!(" (done)")

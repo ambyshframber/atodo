@@ -68,14 +68,14 @@ impl Web {
         self.save_to_file(&path_owned)
     }
 
-    pub fn get_index_of_todo(&self, target: &ToDo) -> usize { // panics if it can't find it
+    pub fn get_index_of_todo(&self, target: &ToDo) -> Option<usize> { // None if it cant find it
         for (i, t) in self.list.iter().enumerate() {
             if t.name == target.name {
-                return i
+                return Some(i)
             }
         }
 
-        unreachable!()
+        None
     }
     pub fn get_indexes_of_parent_tasks(&self, index: usize) -> Vec<usize> {
         let mut ret: Vec<usize> = Vec::new();
@@ -186,10 +186,21 @@ impl Web {
     // mutating
     pub fn add(&mut self, po: &Options) -> i32 {
         let name = collate_string_vec(&po.string);
-        let mut children: Vec<usize> = Vec::new();
+        let mut t = ToDo {
+            name,
+            notes: Vec::new(),
+            children: Vec::new(),
+            done: false,
+            time_added: Utc::now(),
+            time_completed: None
+        };
+        if let Some(i) = self.get_index_of_todo(&t) {
+            println!("task with identical name already exists! (index {})", i);
+            return 1
+        }
         for i in &po.child_tasks {
             if i < &self.list.len() { // check task exists
-                children.push(*i)
+                t.children.push(*i)
             }
             else {
                 println!("child task {} does not exist!", i);
@@ -207,14 +218,6 @@ impl Web {
                 return 1
             }
         }
-        let t = ToDo {
-            name,
-            notes: Vec::new(),
-            children,
-            done: false,
-            time_added: Utc::now(),
-            time_completed: None
-        };
 
         self.list.push(t);
 
