@@ -108,7 +108,14 @@ fn run() -> i32 {
 fn get_options() -> Options {
     let mut po = Options::default();
     po.view_undone = true;
-    po.colours = true;
+    #[cfg(not(windows))]
+    {
+        po.colours = true
+    }
+    #[cfg(windows)]
+    {
+        po.colours = false
+    }
 
     {
         let mut ap = ArgumentParser::new();
