@@ -50,7 +50,7 @@ the available parameters are:
 
 `-N`: do not view tasks that are not completed
 
-by default, non-completed tasks are displayed, and completed tasks are not. bottom-level tasks are displayed in blue, non-completed tasks are red, and completed tasks are green. when in colourless mode, completed tasks are postfixed by `(done)` and bottom-level tasks are postfixed with `(ready)`
+by default, non-completed tasks are displayed, and completed tasks are not. bottom-level tasks are displayed in blue, non-completed tasks are red, and completed tasks are green. when in colourless mode, completed tasks are postfixed by `(done)` and bottom-level tasks are postfixed with `(ready)`. on windows builds, colours are disabled entirely
 
 the program also collects all remaining arguments as a single string.
 
