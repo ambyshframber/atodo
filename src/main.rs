@@ -96,7 +96,7 @@ fn run() -> i32 {
 
     match exit_code {
         0 => { // only save if program doesn't error
-            let _ = web.save_to_file(".todo"); // MAKE THIS NOT SHIT
+            let _ = web.save_to_file(path); // MAKE THIS NOT SHIT
             0
         }
         _ => {
@@ -108,15 +108,8 @@ fn run() -> i32 {
 fn get_options() -> Options {
     let mut po = Options::default();
     po.view_undone = true;
-    #[cfg(not(windows))]
-    {
-        po.colours = true
-    }
-    #[cfg(windows)]
-    {
-        po.colours = false
-    }
-
+    po.colours = true;
+    
     {
         let mut ap = ArgumentParser::new();
         ap.refer(&mut po.command) // main command
@@ -134,25 +127,30 @@ fn get_options() -> Options {
             .add_option(&["-R"], StoreConst(Command::Random), "select and display a random task")
             .add_option(&["-T"], StoreConst(Command::RandomTopLevel), "select and display a random top-level task")
             .add_option(&["-B"], StoreConst(Command::RandomBottomLevel), "select and display a random bottom-level task")
-        ;
-
-        ap.refer(&mut po.main_index).add_option(&["-t"], StoreOption, "the task index to work with");
-
-        ap.refer(&mut po.parent_tasks).add_option(&["-p"], Collect, "a task to add as a parent (works with -a or -e)");
-        ap.refer(&mut po.child_tasks).add_option(&["-c"], Collect, "a task to add as a child (works with -a or -e)");
-        ap.refer(&mut po.unlink_tasks).add_option(&["-u"], Collect, "a task to unlink when using -e");
-
-        ap.refer(&mut po.view_done).add_option(&["-D"], StoreTrue, "view tasks that are already completed");
-        ap.refer(&mut po.view_undone).add_option(&["-N"], StoreFalse, "do not view tasks that are not already completed");
-
-        ap.refer(&mut po.todo_file_path).add_option(&["-P"], StoreOption, "select a custom file path (by default uses ./.todo)");
-
-        ap.refer(&mut po.colours).add_option(&["-C"], StoreFalse, "disable colours");
-
-        ap.refer(&mut po.string).add_argument("string", Collect, "the string the program will use for -a and -N");
-
-        ap.parse_args_or_exit()
+            ;
+            
+            ap.refer(&mut po.main_index).add_option(&["-t"], StoreOption, "the task index to work with");
+            
+            ap.refer(&mut po.parent_tasks).add_option(&["-p"], Collect, "a task to add as a parent (works with -a or -e)");
+            ap.refer(&mut po.child_tasks).add_option(&["-c"], Collect, "a task to add as a child (works with -a or -e)");
+            ap.refer(&mut po.unlink_tasks).add_option(&["-u"], Collect, "a task to unlink when using -e");
+            
+            ap.refer(&mut po.view_done).add_option(&["-D"], StoreTrue, "view tasks that are already completed");
+            ap.refer(&mut po.view_undone).add_option(&["-N"], StoreFalse, "do not view tasks that are not already completed");
+            
+            ap.refer(&mut po.todo_file_path).add_option(&["-P"], StoreOption, "select a custom file path (by default uses ./.todo)");
+            
+            ap.refer(&mut po.colours).add_option(&["-C"], StoreFalse, "disable colours");
+            
+            ap.refer(&mut po.string).add_argument("string", Collect, "the string the program will use for -a and -A");
+            
+            ap.parse_args_or_exit()
+        }
+        
+        #[cfg(windows)]
+        {
+            po.colours = false
+        }
+        po
     }
-
-    po
-}
+    

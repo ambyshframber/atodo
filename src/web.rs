@@ -274,6 +274,10 @@ impl Web {
     pub fn edit(&mut self, po: &Options) -> i32 {
         let index = po.main_index.unwrap();
         if index < self.list.len() {
+            for u in &po.unlink_tasks { // unlink FIRST
+                self.list[index].children.retain(|&x| x != *u);
+                self.list[*u].children.retain(|&x| x != index)
+            }
             for c in &po.child_tasks {
                 if !self.list[index].children.contains(&c) {
                     self.list[index].children.push(*c)
@@ -283,10 +287,6 @@ impl Web {
                 if !self.list[*p].children.contains(&index) {
                     self.list[*p].children.push(index)
                 }
-            }
-            for u in &po.unlink_tasks {
-                self.list[index].children.retain(|&x| x != *u);
-                self.list[*u].children.retain(|&x| x != index)
             }
             0
         }
